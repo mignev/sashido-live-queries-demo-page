@@ -1,0 +1,93 @@
+<!doctype html>
+<head>
+  <meta charset="utf-8">
+
+  <title>SashiDo Live Queries Example!</title>
+  <meta name="description" content="My Parse App">
+  <meta name="viewport" content="width=device-width">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+  <script type="text/javascript" src="https://unpkg.com/parse@1.9.1/dist/parse.js"></script>
+  <style type="text/css">
+  body {padding: 20px;} .input-group-addon {width: 100px;} .input-group {margin-bottom: 10px; width: 320px;}
+  </style>
+</head>
+
+<body>
+
+  <div class="row">
+    <div class="col-sm-3">
+      <h2>Credentials</h2>
+
+      <div class="alert alert-info">SashiDo Dashboard > You app > App Settings > Security & Keys</div>
+
+      <div class="input-group">
+        <span class="input-group-addon" id="server_url">Server URL</span>
+        <input type="text" class="form-control" required="required" placeholder="https://pg-app-....." aria-describedby="server_url">
+      </div>
+
+      <div class="input-group">
+        <span class="input-group-addon" id="app_id">App ID</span>
+        <input type="text" class="form-control" placeholder="px2px2px2px2..px2px2" aria-describedby="app_id">
+      </div>
+
+      <div class="input-group">
+        <span class="input-group-addon" id="js_key">JS Key</span>
+        <input type="text" class="form-control" placeholder="px2px2px2px2..px2px2" aria-describedby="js_key">
+      </div>
+
+      <div class="input-group">
+        <span class="input-group-addon" id="class_name">Class</span>
+        <input type="text" class="form-control" placeholder="_User" aria-describedby="class_name">
+      </div>
+
+      <button type="button" id="setup_btn" class="btn btn-primary btn-lg">Setup</button>
+
+      <br />
+      <br />
+
+
+    </div>
+    <div class="col-sm-8">
+      <h2>Live Query result:</h2>
+      <pre id="json">Fill the inputs with your credentials</pre>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    /*
+    * Your credentials from:
+    * SashiDo Dashboard > You app > App Settings > Security & Keys
+    */
+
+   $('#setup_btn').on('click', function(){
+    var server_url = $('[aria-describedby=server_url]').val(),
+       app_id = $('[aria-describedby=app_id]').val(),
+       javascript_key = $('[aria-describedby=js_key]').val(),
+       classname = $('[aria-describedby=class_name]').val();
+
+     Parse.initialize(app_id, javascript_key);
+     Parse.serverURL = server_url;
+
+     var ClassObject = Parse.Object.extend(classname);
+     var query = new Parse.Query(ClassObject);
+     var subscription = query.subscribe();
+
+     subscription.on('create', function(obj)
+     {
+       console.log('create', obj.attributes);
+     });
+
+     subscription.on('update', function(obj)
+     {
+       console.log('update', obj.attributes);
+       document.getElementById("json").innerHTML = JSON.stringify(obj.attributes, undefined, 2);
+     });
+
+     $('#json').text('Waiting for changes ...')
+
+   });
+  </script>
+</body>
+
+</html>
